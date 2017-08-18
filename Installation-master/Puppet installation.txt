@@ -1,0 +1,59 @@
+=======Puppet==================
+       ------
+Prerequisites:
+=> Make sure your system (both puppet server and client) is able to resolve the hostname each other, 
+   either use /etc/hosts file or DNS
+
+-Run it on both master and agent nodes:
+#rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
+
+-Install puppetserver on master node
+#yum install puppet-server 
+#vi /etc/puppet/puppet.conf
+	
+	[main]
+	dns_alt_names = master,master.host.local
+	certname = master.host.local
+
+-run below command to create the puppet master certificate.
+
+#puppet master --verbose --no-daemonize
+
+-Once you get “Notice: Starting Puppet master version <VERSION>“, 
+ press ctrl-C to kill the process
+
+-On your client machine, install puppet agent using below command.
+#yum -y install puppet
+#vi /etc/puppet/puppet.conf
+
+	[agent]
+	server = master.host.local
+
+-Make sure puppetmaster is up(login to master #service puppetmaster start) 
+
+#systemctl start  puppet.service
+#systemctl enable puppet.service
+
+
+-Sign the Agent Node’s Certificate on Master Server:
+
+In master:
+
+#puppet cert list
+
+"client.host.local" (SHA256) D4:88:EC:C5:0A:F7:5D:4E:32
+
+#puppet cert sign client.host.local
+
+-now run the following command from agent node
+#puppet agent -t
+
+Info: Caching certificate for client.itzgeek.local
+Info: Caching certificate_revocation_list for ca
+Info: Caching certificate for client.itzgeek.local
+Info: Retrieving pluginfacts
+Info: Retrieving plugin
+Info: Caching catalog for client.itzgeek.local
+Info: Applying configuration version '1445401911'
+Info: Creating state file /var/lib/puppet/state/state.yaml
+Notice: Finished catalog run in 0.09 seconds
